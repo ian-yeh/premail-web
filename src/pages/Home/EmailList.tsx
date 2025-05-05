@@ -1,7 +1,40 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEmails } from '../../contexts/EmailContext';
 import { format } from 'date-fns';
+
+const Email = ({ email }) => {
+  const [drop, setDrop] = useState(false);
+
+  return (
+    <div 
+      className="p-4 hover:bg-gray-50 cursor-pointer"
+      onClick={() => handleEditEmail(email.id!)}
+    >
+      <div className="flex justify-between">
+        <h3 className="font-medium">{email.subject || '(No subject)'}</h3>
+        <span className="text-sm text-gray-500">
+          {email.updatedAt ? format(email.updatedAt.toDate(), 'MMM d, yyyy') : 'Draft'}
+        </span>
+      </div>
+
+      <button onClick={() => setDrop(prev => !prev)} className="text-xs hover:text-gray-500 py-3">
+        {drop ? "Hide" : "View"} Content...
+      </button>
+
+      {drop && 
+        <p className="text-gray-600 text-sm mt-1 overflow-y-hidden">{email.body}</p>
+      }
+      <div className="mt-2 flex gap-2">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          {email.status}
+        </span>
+        <span className="text-xs text-gray-500">To: {email.to}</span>
+      </div>
+    </div>
+  )
+
+};
 
 const EmailList = () => {
   const { emails, loading, error, refreshEmails } = useEmails();
@@ -41,25 +74,10 @@ const EmailList = () => {
       ) : (
         <div className="divide-y divide-gray-200">
           {emails.map(email => (
-            <div 
+            <Email 
+              email={email}
               key={email.id} 
-              className="p-4 hover:bg-gray-50 cursor-pointer"
-              onClick={() => handleEditEmail(email.id!)}
-            >
-              <div className="flex justify-between">
-                <h3 className="font-medium">{email.subject || '(No subject)'}</h3>
-                <span className="text-sm text-gray-500">
-                  {email.updatedAt ? format(email.updatedAt.toDate(), 'MMM d, yyyy') : 'Draft'}
-                </span>
-              </div>
-              <p className="text-gray-600 text-sm mt-1 truncate">{email.body}</p>
-              <div className="mt-2 flex gap-2">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  {email.status}
-                </span>
-                <span className="text-xs text-gray-500">To: {email.to}</span>
-              </div>
-            </div>
+            />
           ))}
         </div>
       )}
