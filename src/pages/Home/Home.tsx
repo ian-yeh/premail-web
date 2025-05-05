@@ -1,0 +1,77 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
+import { useAuth } from '../../contexts/AuthContext.tsx';
+import EmailList from './EmailList.tsx';
+
+const Home = () => {
+  const [time, setTime] = useState(new Date());
+  const navigate = useNavigate();
+
+  const { currentUser } = useAuth();
+
+  const handleCreateNew = () => {
+    navigate('/editor/new');
+  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date());
+      //console.log(time);
+    }, 1000);
+
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, []);
+
+  return (
+    <div className="font-display p-10">
+
+      <div className="flex flex-direction">
+        <div className="w-1/2">
+          <h1 className="text-5xl font-bold text-zinc-900">
+            {currentUser ? `Hi, ${currentUser.displayName || ''} 👋` : 'Welcome 👋'}
+          </h1>
+          <h3 className="text-3xl font-bold mt-3 text-zinc-600">How are you doing today?</h3>
+
+        </div>
+        <div className="grid grid-flow-col justify-items-end w-1/2">
+          <div className="">
+            {currentUser ? (
+              <img 
+              src={currentUser.photoURL} 
+              alt="Profile" 
+              className="w-20 h-20 rounded-full"
+              />
+            ): (<div>NO PHOTO</div>)
+            }
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-direction mt-16">
+        <div className="w-1/2">
+          <button 
+            onClick={handleCreateNew} 
+            className="h-1/1 p-6 bg-blue-600 border-1 rounded-xl text-xl text-white w-4/5 hover:bg-blue-700"
+          >Create New Message</button>
+        </div>
+        <div className="w-1/2">
+          <h1 className="text-5xl font-bold text-zinc-600">TODAY IS <span className="text-blue-600">
+            {time.toLocaleDateString("en-US", { month: 'short', weekday: 'short', day: 'numeric' })}
+          </span></h1>
+          <h1 
+            className="text-5xl font-bold text-zinc-900 mt-4" 
+          >
+            {time.toLocaleTimeString()}
+          </h1>
+        </div>
+      </div>
+
+      <div className="mt-16">
+        <EmailList />
+      </div>
+
+    </div>
+  );
+}
+
+export default Home;
