@@ -1,10 +1,17 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useEmails } from '../../contexts/EmailContext';
 import { format } from 'date-fns';
 
 const Email = ({ email }) => {
   const [drop, setDrop] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleEditEmail = (emailId: string) => {
+    navigate(`/editor/${emailId}`);
+  };
+
 
   return (
     <div 
@@ -17,14 +24,10 @@ const Email = ({ email }) => {
           {email.updatedAt ? format(email.updatedAt.toDate(), 'MMM d, yyyy') : 'Draft'}
         </span>
       </div>
+      <p className="text-gray-600 text-sm mt-1 line-clamp-2 overflow-hidden text-ellipsis mb-5">
+        {email.body}
+      </p>
 
-      <button onClick={() => setDrop(prev => !prev)} className="text-xs hover:text-gray-500 py-3">
-        {drop ? "Hide" : "View"} Content...
-      </button>
-
-      {drop && 
-        <p className="text-gray-600 text-sm mt-1 overflow-y-hidden">{email.body}</p>
-      }
       <div className="mt-2 flex gap-2">
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
           {email.status}
@@ -48,9 +51,6 @@ const EmailList = () => {
     navigate('/editor/new');
   };
   
-  const handleEditEmail = (emailId: string) => {
-    navigate(`/editor/${emailId}`);
-  };
   
   if (loading) return <div className="text-center p-8">Loading emails...</div>;
   if (error) return <div className="text-red-500 p-8">Error: {error}</div>;

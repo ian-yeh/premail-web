@@ -4,6 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useEmails } from '../../contexts/EmailContext';
 import { Email } from '../../services/firebase/emailService';
 
+import DatePicker from '../Editor/DatePicker.tsx';
+
 const Editor = () => {
   const { emailId } = useParams();
   const navigate = useNavigate();
@@ -18,7 +20,8 @@ const Editor = () => {
     to: '',
     cc: '',
     bcc: '',
-    status: 'draft'
+    status: 'draft',
+    time: '',
   });
   
   // Load email data if editing an existing email
@@ -151,6 +154,11 @@ const Editor = () => {
             className="w-full border border-gray-300 rounded px-3 py-2"
             placeholder="Write your email content here..."
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Schedule Time</label>
+          <DatePicker />
         </div>
       </div>
     </div>
