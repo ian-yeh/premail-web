@@ -1,15 +1,28 @@
+import { Timestamp } from 'firebase/firestore';
 import { useState, useRef, useEffect } from 'react';
 
-export default function DatePicker({ onChange }) {
-  const [selectedDate, setSelectedDate] = useState("");
+interface DatePickerProps {
+  label: string;
+  onChange: (selectedDate: Date | undefined) => void;
+  value: Timestamp | undefined;
+}
+
+export default function DatePicker({ label = "Select date", onChange, value }: DatePickerProps) {
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
   const [isOpen, setIsOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const calendarRef = useRef(null);
+
+  const calendarRef = useRef<HTMLDivElement>(null);
+
+  // Update selectedDate when value prop changes
+  useEffect(() => {
+    setScheduledDate(value?.toDate());
+  }, [value]);
 
   // Close calendar when clicking outside
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
@@ -21,45 +34,49 @@ export default function DatePicker({ onChange }) {
   }, [calendarRef]);
 
   // Get days in month
-  const getDaysInMonth = (year, month) => {
+  const getDaysInMonth = (year: number, month: number) => {
     return new Date(year, month + 1, 0).getDate();
   };
 
   // Get day of week for first day of month (0 = Sunday)
-  const getFirstDayOfMonth = (year, month) => {
+  const getFirstDayOfMonth = (year: number, month: number) => {
     return new Date(year, month, 1).getDay();
   };
 
-  // Format date as YYYY-MM-DD
-  const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
+  // // Format date as YYYY-MM-DD
+  // const formatDate = (date: Date | undefined): string => {
+  //   if (!date) return "";
+
+  //   const year = date.getFullYear();
+  //   const month = String(date.getMonth() + 1).padStart(2, '0');
+  //   const day = String(date.getDate()).padStart(2, '0');
+
+  //   return `${year}-${month}-${day}`;
+  // };
 
   // Format for display
-  const formatDisplayDate = (dateString) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
+  const formatDisplayDate = (date: Date | undefined): string => {
+    if (!date) return "";
     return date.toLocaleDateString('en-US', { 
       month: 'short', 
       day: 'numeric',
       year: 'numeric'
     });
+
   };
 
-  const handleDateSelect = (day) => {
+  const handleDateSelect = (day: number) => {
     const newDate = new Date(
       currentMonth.getFullYear(),
       currentMonth.getMonth(),
       day
     );
-    const formattedDate = formatDate(newDate);
-    setSelectedDate(formattedDate);
+
+    setScheduledDate(newDate);
+
     setIsOpen(false);
     if (onChange) {
-      onChange(formattedDate);
+      onChange(newDate);
     }
   };
 
@@ -87,8 +104,9 @@ export default function DatePicker({ onChange }) {
 
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const dateString = formatDate(new Date(year, month, day));
-      const isSelected = selectedDate === dateString;
+      const newDate = new Date(year, month, day);
+
+      const isSelected = (scheduledDate === newDate);
       
       days.push(
         <div 
@@ -107,6 +125,7 @@ export default function DatePicker({ onChange }) {
 
   return (
     <div className="relative max-w-sm" ref={calendarRef}>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
       <div className="relative">
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           <svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -117,7 +136,7 @@ export default function DatePicker({ onChange }) {
           type="text"
           className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
           placeholder="Select date"
-          value={formatDisplayDate(selectedDate)}
+          value={formatDisplayDate(scheduledDate)}
           onClick={() => setIsOpen(!isOpen)}
           readOnly
         />
@@ -161,7 +180,7 @@ export default function DatePicker({ onChange }) {
             {renderCalendarDays()}
           </div>
           
-          {selectedDate && (
+          {scheduledDate && (
             <div className="mt-4 pt-2 border-t border-gray-100 text-right">
               <button
                 onClick={() => setIsOpen(false)}

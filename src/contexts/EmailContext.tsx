@@ -16,7 +16,7 @@ interface EmailContextType {
   error: string | null;
   createNewEmail: (emailData: Omit<Email, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => Promise<Email>;
   getEmail: (emailId: string) => Promise<Email>;
-  updateExistingEmail: (emailId: string, emailData: Partial<Email>) => Promise<Email>;
+  updateExistingEmail: (emailId: string, emailData: Partial<Email>) => Promise<Partial<Email>>;
   deleteExistingEmail: (emailId: string) => Promise<boolean>;
   refreshEmails: () => Promise<void>;
 }
@@ -25,6 +25,7 @@ const EmailContext = createContext<EmailContextType | undefined>(undefined);
 
 export const useEmails = () => {
   const context = useContext(EmailContext);
+  //console.log(context);
   if (context === undefined) {
     throw new Error('useEmails must be used within an EmailProvider');
   }
@@ -79,7 +80,7 @@ export const EmailProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Update an existing email
-  const updateExistingEmail = async (emailId: string, emailData: Partial<Email>) => {
+  const updateExistingEmail = async (emailId: string, emailData: Partial<Email>): Promise<Partial<Email>> => {
     const updatedEmail = await updateEmail(emailId, emailData);
     
     setEmails(prevEmails => 

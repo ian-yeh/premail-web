@@ -27,7 +27,7 @@ export interface Email {
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
   status: 'draft' | 'sent' | 'scheduled';
-  scheduledTime?: Timestamp;
+  scheduledDate?: Timestamp | undefined;
 }
 
 // Create a new email (draft)

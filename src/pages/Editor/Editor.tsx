@@ -5,6 +5,7 @@ import { useEmails } from '../../contexts/EmailContext';
 import { Email } from '../../services/firebase/emailService';
 
 import DatePicker from '../Editor/DatePicker.tsx';
+import { dateToTimestamp } from './editorUtils.ts';
 
 const Editor = () => {
   const { emailId } = useParams();
@@ -21,8 +22,9 @@ const Editor = () => {
     cc: '',
     bcc: '',
     status: 'draft',
-    time: '',
+    scheduledDate: undefined, 
   });
+
   
   // Load email data if editing an existing email
   useEffect(() => {
@@ -40,10 +42,34 @@ const Editor = () => {
     
     loadEmail();
   }, [emailId, getEmail]);
+
+  console.log(email.scheduledDate)
+  console.log(email.scheduledDate?.constructor.name)
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEmail(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Handle date picker change
+  const handleDateChange = (selectedDate: Date | undefined) => {
+    const timestamp = dateToTimestamp(selectedDate);
+
+    setEmail(prev => ({ 
+      ...prev, 
+      scheduledDate: timestamp,
+      // Update status based on whether a date is selected
+      status: timestamp ? 'scheduled' : 'draft'
+    }));
+  };
+
+  // Clear scheduled date
+  const handleClearSchedule = () => {
+    setEmail(prev => ({ 
+      ...prev, 
+      scheduledDate: undefined,
+      status: 'draft'
+    }));
   };
   
   const handleSave = async () => {
@@ -55,6 +81,8 @@ const Editor = () => {
       } else {
         await updateExistingEmail(emailId!, email);
       }
+
+      navigate('/Home');
     } catch (err: any) {
       setError(err.message || 'Failed to save email');
     } finally {
@@ -84,7 +112,7 @@ const Editor = () => {
             disabled={saving}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
           >
-            {saving ? 'Saving...' : 'Save Draft'}
+            {saving ? 'Saving...' : email.scheduledDate ? 'Schedule Email' : 'Save Draft'}
           </button>
         </div>
       </div>
@@ -92,6 +120,27 @@ const Editor = () => {
       {error && (
         <div className="bg-red-100 text-red-800 p-3 rounded mb-4">
           Error: {error}
+        </div>
+      )}
+
+      {/* Show scheduled status */}
+      {email.scheduledDate && (
+        <div className="bg-blue-50 border border-blue-200 text-blue-800 p-3 rounded mb-4 flex justify-between items-center">
+          <span>
+            📅 This email is scheduled to be sent on {/** adding space */}
+            {email.scheduledDate.toDate().toLocaleDateString('en-US', { 
+              weekday: 'long',
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </span>
+          <button 
+            onClick={handleClearSchedule}
+            className="text-blue-600 hover:text-blue-800 text-sm underline"
+          >
+            Clear Schedule
+          </button>
         </div>
       )}
       
@@ -157,8 +206,14 @@ const Editor = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Schedule Time</label>
-          <DatePicker />
+          <DatePicker 
+            label="Schedule Email (Optional)"
+            onChange={handleDateChange}
+            value={email.scheduledDate}
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Leave empty to save as draft, or select a date to schedule the email
+          </p>
         </div>
       </div>
     </div>
