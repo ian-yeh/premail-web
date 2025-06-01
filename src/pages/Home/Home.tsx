@@ -37,7 +37,7 @@ const Home = () => {
           <div className="">
             {currentUser ? (
               <img 
-              src={currentUser.photoURL} 
+              src={currentUser.photoURL? currentUser.photoURL : undefined} 
               alt="Profile" 
               className="w-20 h-20 rounded-full"
               />
@@ -48,13 +48,7 @@ const Home = () => {
       </div>
 
       <div className="flex flex-direction mt-16">
-        <div className="w-1/2">
-          <button 
-            onClick={handleCreateNew} 
-            className="h-1/1 p-6 bg-blue-600 border-1 rounded-xl text-xl text-white w-4/5 hover:bg-blue-700"
-          >Create New Message</button>
-        </div>
-        <div className="w-1/2">
+        <div className="w-1 border">
           <h1 className="text-5xl font-bold text-zinc-600">TODAY IS <span className="text-blue-600">
             {time.toLocaleDateString("en-US", { month: 'short', weekday: 'short', day: 'numeric' })}
           </span></h1>

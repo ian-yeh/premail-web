@@ -1,14 +1,18 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
-
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { useNavigate } from 'react-router-dom';
+import {
+  HomeIcon,
+  ChartBarIcon,
+  CogIcon,
+  ArrowLeftStartOnRectangleIcon
+} from '@heroicons/react/24/outline';
 
 const Sidebar = () => {
-  const linkClass = ({ isActive }) =>
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
     isActive
-      ? 'text-dark-600 text-sm bg-gray-300 p-6 rounded-3xl'
-      : 'text-gray-700 hover:bg-blue-200 p-6 rounded-3xl';
+      ? 'flex items-center space-x-3 p-4 rounded-xl bg-white text-blue-600 shadow-sm transition-all'
+      : 'flex items-center space-x-3 p-4 rounded-xl text-gray-600 hover:bg-white hover:text-blue-500 transition-all';
 
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -23,28 +27,37 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="font-display pd-4 w-100 h-screen flex justify-center items-center">
-      <div className="w-9/10 h-19/20 rounded-2xl bg-blue-300 shadow-lg flex flex-col p-8 space-y-4">
-        <h1 className="text-2xl font-semibold mb-6">PreMail</h1>
-        <div className="flex flex-col space-y-2">
-          <NavLink to="/home" end className={linkClass}>
-            Home
-          </NavLink>
-          <NavLink to="/dashboard" className={linkClass}>
-            Dashboard
-          </NavLink>
-          <NavLink to="/settings" className={linkClass}>
-            Settings
-          </NavLink>
-        </div>
-        <div className="mt-auto">
-          <button
-            onClick={handleLogout}
-            className="text-sm text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-xl"
-          >
-            Sign Out
-          </button>
-        </div>
+    <div className="h-screen w-64 flex flex-col bg-gradient-to-b from-blue-50 to-blue-100 p-4 border-r border-blue-200">
+      {/**
+       * Optional logo/header
+      <div className="p-4 mb-8">
+        <h1 className="text-xl font-bold text-blue-800">PreMail</h1>
+      </div>
+       */}
+      
+      <nav className="flex-1 space-y-2 mt-8">
+        <NavLink to="/home" end className={linkClass}>
+          <HomeIcon className="h-5 w-5" />
+          <span>Home</span>
+        </NavLink>
+        <NavLink to="/dashboard" className={linkClass}>
+          <ChartBarIcon className="h-5 w-5" />
+          <span>Dashboard</span>
+        </NavLink>
+        <NavLink to="/settings" className={linkClass}>
+          <CogIcon className="h-5 w-5" />
+          <span>Settings</span>
+        </NavLink>
+      </nav>
+      
+      <div className="mb-6">
+        <button
+          onClick={handleLogout}
+          className="flex items-center space-x-3 w-full p-4 rounded-xl text-gray-600 hover:bg-white hover:text-red-500 transition-all"
+        >
+          <ArrowLeftStartOnRectangleIcon className="h-5 w-5" />
+          <span>Sign Out</span>
+        </button>
       </div>
     </div>
   );

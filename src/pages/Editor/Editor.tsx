@@ -82,7 +82,7 @@ const Editor = () => {
         await updateExistingEmail(emailId!, email);
       }
 
-      navigate('/Home');
+      navigate('/');
     } catch (err: any) {
       setError(err.message || 'Failed to save email');
     } finally {

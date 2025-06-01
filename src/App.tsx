@@ -15,9 +15,13 @@ const App = () => {
   return (
     <AuthProvider>
       <EmailProvider>
-        <div className="flex">
-          {!isLoginPage && <Sidebar />}
-          <div className={`${isLoginPage ? 'w-full' : 'flex-1'} p-6`}>
+        <div className="flex h-screen">
+          {!isLoginPage && 
+          <div className="sticky top-0 left-0 h-screen">
+            <Sidebar />
+          </div>
+          }
+          <div className={`${isLoginPage ? 'w-full' : 'flex-1'} p-6 overflow-auto`}>
             <Routes>
               <Route path="/" element={<Login />} />
               <Route path="/Home" element={
