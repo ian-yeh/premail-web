@@ -11,6 +11,7 @@ export const authGmail = functions.https.onRequest((req, res) => {
   // Apply CORS to all requests (including OPTIONS preflight)
   corsHandler(req, res, async () => {
     try {
+      // OAuth2Client instance - no secrets stored, uses environment variables
       const authUrl = oauth2Client.generateAuthUrl({
         access_type: "offline",
         scope: ["https://www.googleapis.com/auth/gmail.send"],
