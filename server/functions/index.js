@@ -9,13 +9,7 @@ import cors from 'cors';
 // );
 
 const corsHandler = cors({ origin: true });
-/*
-const oauth2Client = new OAuth2Client(
-  "716385265566-322eso5asg468bu6v590khqkfoomf927.apps.googleusercontent.com",
-  "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",
-  "https://localhost:5173/popup.html",
-);
-*/
+
 
 // Auth URL Generator Function
 export const authGmail = functions.https.onRequest((req, res) => {
