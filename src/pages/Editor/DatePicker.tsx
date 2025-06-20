@@ -9,14 +9,29 @@ interface DatePickerProps {
 
 export default function DatePicker({ label = "Select date", onChange, value }: DatePickerProps) {
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
+  const [selectedHours, setSelectedHours] = useState(12);
+  const [selectedMinutes, setSelectedMinutes] = useState(0);
+  const [isAM, setIsAM] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const calendarRef = useRef<HTMLDivElement>(null);
 
   // Update selectedDate when value prop changes
   useEffect(() => {
-    setScheduledDate(value?.toDate());
+    if (value) {
+      const date = value.toDate();
+      setScheduledDate(date);
+      setSelectedHours(date.getHours() % 12 || 12);
+      setSelectedMinutes(date.getMinutes());
+      setIsAM(date.getHours() < 12);
+    } else {
+      setScheduledDate(undefined);
+      setSelectedHours(12);
+      setSelectedMinutes(0);
+      setIsAM(false);
+    }
   }, [value]);
 
   // Close calendar when clicking outside
@@ -24,6 +39,7 @@ export default function DatePicker({ label = "Select date", onChange, value }: D
     function handleClickOutside(event: MouseEvent) {
       if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setShowTimePicker(false);
       }
     }
     
@@ -43,38 +59,46 @@ export default function DatePicker({ label = "Select date", onChange, value }: D
     return new Date(year, month, 1).getDay();
   };
 
-  // // Format date as YYYY-MM-DD
-  // const formatDate = (date: Date | undefined): string => {
-  //   if (!date) return "";
-
-  //   const year = date.getFullYear();
-  //   const month = String(date.getMonth() + 1).padStart(2, '0');
-  //   const day = String(date.getDate()).padStart(2, '0');
-
-  //   return `${year}-${month}-${day}`;
-  // };
-
   // Format for display
   const formatDisplayDate = (date: Date | undefined): string => {
     if (!date) return "";
     return date.toLocaleDateString('en-US', { 
       month: 'short', 
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
     });
-
   };
 
   const handleDateSelect = (day: number) => {
     const newDate = new Date(
       currentMonth.getFullYear(),
       currentMonth.getMonth(),
-      day
+      day,
+      isAM ? selectedHours : selectedHours + 12,
+      selectedMinutes
     );
 
     setScheduledDate(newDate);
+    setShowTimePicker(true);
+  };
 
+  const handleTimeConfirm = () => {
+    if (!scheduledDate) return;
+    
+    const newDate = new Date(
+      scheduledDate.getFullYear(),
+      scheduledDate.getMonth(),
+      scheduledDate.getDate(),
+      isAM ? selectedHours : selectedHours + 12,
+      selectedMinutes
+    );
+
+    setScheduledDate(newDate);
     setIsOpen(false);
+    setShowTimePicker(false);
     if (onChange) {
       onChange(newDate);
     }
@@ -104,9 +128,10 @@ export default function DatePicker({ label = "Select date", onChange, value }: D
 
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const newDate = new Date(year, month, day);
-
-      const isSelected = (scheduledDate === newDate);
+      const isSelected = scheduledDate && 
+        scheduledDate.getDate() === day && 
+        scheduledDate.getMonth() === month && 
+        scheduledDate.getFullYear() === year;
       
       days.push(
         <div 
@@ -121,6 +146,87 @@ export default function DatePicker({ label = "Select date", onChange, value }: D
     }
 
     return days;
+  };
+
+  const renderTimePicker = () => {
+    return (
+      <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="flex justify-center items-center space-x-4 mb-4">
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-gray-500 mb-1">HOURS</span>
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => setSelectedHours(prev => Math.min(prev + 1, 12))}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <span className="text-lg font-medium w-6 text-center">{selectedHours}</span>
+              <button 
+                onClick={() => setSelectedHours(prev => Math.max(prev - 1, 1))}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-gray-500 mb-1">MINUTES</span>
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => setSelectedMinutes(prev => (prev + 5) % 60)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <span className="text-lg font-medium w-6 text-center">
+                {String(selectedMinutes).padStart(2, '0')}
+              </span>
+              <button 
+                onClick={() => setSelectedMinutes(prev => (prev - 5 + 60) % 60)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-gray-500 mb-1">AM/PM</span>
+            <button 
+              onClick={() => setIsAM(!isAM)}
+              className="px-2 py-1 bg-gray-100 rounded text-sm font-medium"
+            >
+              {isAM ? 'AM' : 'PM'}
+            </button>
+          </div>
+        </div>
+        
+        <div className="flex justify-end space-x-2">
+          <button
+            onClick={() => setShowTimePicker(false)}
+            className="text-sm font-medium text-gray-600 hover:text-gray-800 px-3 py-1"
+          >
+            Back
+          </button>
+          <button
+            onClick={handleTimeConfirm}
+            className="text-sm font-medium text-blue-600 hover:text-blue-800 px-3 py-1"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -144,51 +250,57 @@ export default function DatePicker({ label = "Select date", onChange, value }: D
       
       {isOpen && (
         <div className="absolute mt-1 w-64 bg-white shadow-lg rounded-lg p-4 z-10 border">
-          <div className="flex justify-between items-center mb-2">
-            <button 
-              onClick={previousMonth}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            
-            <div className="text-sm font-medium">
-              {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-            </div>
-            
-            <button 
-              onClick={nextMonth}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-7 gap-1 mb-2">
-            {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-              <div key={day} className="h-6 text-center text-xs font-medium text-gray-500">
-                {day}
+          {!showTimePicker ? (
+            <>
+              <div className="flex justify-between items-center mb-2">
+                <button 
+                  onClick={previousMonth}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                
+                <div className="text-sm font-medium">
+                  {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </div>
+                
+                <button 
+                  onClick={nextMonth}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
               </div>
-            ))}
-          </div>
-          
-          <div className="grid grid-cols-7 gap-1">
-            {renderCalendarDays()}
-          </div>
-          
-          {scheduledDate && (
-            <div className="mt-4 pt-2 border-t border-gray-100 text-right">
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-sm font-medium text-blue-600 hover:text-blue-800"
-              >
-                Done
-              </button>
-            </div>
+              
+              <div className="grid grid-cols-7 gap-1 mb-2">
+                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+                  <div key={day} className="h-6 text-center text-xs font-medium text-gray-500">
+                    {day}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="grid grid-cols-7 gap-1">
+                {renderCalendarDays()}
+              </div>
+              
+              {scheduledDate && (
+                <div className="mt-4 pt-2 border-t border-gray-100 text-right">
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                  >
+                    Done
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            renderTimePicker()
           )}
         </div>
       )}

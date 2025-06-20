@@ -1,0 +1,51 @@
+<!-- public/popup.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Connecting Gmail...</title>
+</head>
+<body>
+  <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+    <h2>Connecting to Gmail...</h2>
+    <p>This window will close automatically.</p>
+  </div>
+
+  <script>
+    console.log('Popup loaded, URL:', window.location.href);
+    console.log('Opener exists:', !!window.opener);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    const error = urlParams.get('error');
+
+    console.log('Code:', code);
+    console.log('State:', state);
+    console.log('Error:', error);
+
+    if (error) {
+      console.log('ERROR. Sending error to parent...');
+      window.opener.postMessage({
+        type: 'OAUTH_ERROR',
+        error: error
+      }, '*'); // Use '*' for now to rule out origin issues
+    } else if (code) {
+      console.log('SUCCESS! Sending success to parent...');
+      window.opener.postMessage({
+        type: 'OAUTH_SUCCESS',
+        code: code,
+        state: state
+      }, '*'); // Use '*' for now to rule out origin issues
+    } else {
+      console.log('No code or error found in URL');
+    }
+
+    // Delay closing slightly to ensure message is sent
+    setTimeout(() => {
+      console.log("CLOSING WINDOW");
+      window.close();
+    }, 4000);
+  </script>
+
+</body>
+</html>

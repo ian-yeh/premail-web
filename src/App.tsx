@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute.tsx';
 
 import { AuthProvider } from './contexts/AuthContext.tsx';
 import { EmailProvider } from './contexts/EmailContext.tsx';
+import { Settings } from './pages/Settings/Settings.tsx';
 
 const App = () => {
   const location = useLocation();
@@ -32,6 +33,11 @@ const App = () => {
               <Route path="/editor/:emailId" element={
                 <ProtectedRoute>
                   <Editor />
+                </ProtectedRoute>
+              }/>
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               }/>
             </Routes>

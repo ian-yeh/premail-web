@@ -3,7 +3,6 @@ import { useAuth } from '../contexts/AuthContext.tsx';
 import { useNavigate } from 'react-router-dom';
 import {
   HomeIcon,
-  ChartBarIcon,
   CogIcon,
   ArrowLeftStartOnRectangleIcon
 } from '@heroicons/react/24/outline';
@@ -27,7 +26,7 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="h-screen w-64 flex flex-col bg-gradient-to-b from-blue-50 to-blue-100 p-4 border-r border-blue-200">
+    <div className="h-screen w-64 flex flex-col bg-gradient-to-b from-blue-200 to-blue-300 p-4 border-r border-blue-200">
       {/**
        * Optional logo/header
       <div className="p-4 mb-8">
@@ -39,10 +38,6 @@ const Sidebar = () => {
         <NavLink to="/home" end className={linkClass}>
           <HomeIcon className="h-5 w-5" />
           <span>Home</span>
-        </NavLink>
-        <NavLink to="/dashboard" className={linkClass}>
-          <ChartBarIcon className="h-5 w-5" />
-          <span>Dashboard</span>
         </NavLink>
         <NavLink to="/settings" className={linkClass}>
           <CogIcon className="h-5 w-5" />

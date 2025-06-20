@@ -7,21 +7,23 @@ import {
   signOut, 
   onAuthStateChanged 
 } from 'firebase/auth';
+import { doc, setDoc, getFirestore } from 'firebase/firestore';
 import { auth } from '../services/firebase/firebaseConfig.ts';
 
-// Define the shape of our auth context
+// Initialize Firestore
+const db = getFirestore();
+
 interface AuthContextType {
   currentUser: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<User>;
   logout: () => Promise<void>;
   error: string | null;
+  createUserDocument: (user: User) => Promise<void>;
 }
 
-// Create the context with a default undefined value
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Custom hook to use the auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -30,21 +32,37 @@ export const useAuth = () => {
   return context;
 };
 
-// Auth Provider component
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Sign in with Google
+  // Create user document in Firestore
+  const createUserDocument = async (user: User) => {
+    const userRef = doc(db, "users", user.uid);
+    try {
+      await setDoc(userRef, {
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        createdAt: new Date(),
+        gmailRefreshToken: "",
+        updatedAt: new Date()
+      }, { merge: true }); // merge: true prevents overwriting existing data
+    } catch (err) {
+      console.error("Error creating user document:", err);
+    }
+  };
+
   const signInWithGoogle = async (): Promise<User> => {
     setError(null);
     try {
       const provider = new GoogleAuthProvider();
-      // You can add scopes if needed
-      // provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
-      
       const result = await signInWithPopup(auth, provider);
+      
+      // Create user document after successful sign-in
+      await createUserDocument(result.user);
+      
       return result.user;
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to sign in with Google';
@@ -53,7 +71,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Logout function
   const logout = async (): Promise<void> => {
     setError(null);
     try {
@@ -65,9 +82,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Set up auth state listener when the component mounts
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Create document if it doesn't exist when auth state changes
+        await createUserDocument(user);
+      }
       setCurrentUser(user);
       setLoading(false);
     }, (err) => {
@@ -75,17 +95,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    // Cleanup subscription on unmount
     return unsubscribe;
   }, []);
 
-  // Auth context value
   const value = {
     currentUser,
     loading,
     signInWithGoogle,
     logout,
     error,
+    createUserDocument
   };
 
   return (
