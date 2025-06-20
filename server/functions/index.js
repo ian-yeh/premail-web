@@ -2,8 +2,6 @@ import * as functions from 'firebase-functions/v2';
 import { OAuth2Client } from 'google-auth-library';
 import cors from 'cors';
 
-
-
 const corsHandler = cors({ origin: true });
 
 // Auth URL Generator Function
@@ -11,8 +9,7 @@ export const authGmail = functions.https.onRequest((req, res) => {
   // Apply CORS to all requests (including OPTIONS preflight)
   corsHandler(req, res, async () => {
     try {
-      // OAuth2Client instance - no secrets stored, uses environment variables
-      const authUrl = oauth2Client.generateAuthUrl({
+      const authUrl = authClient.generateAuthUrl({
         access_type: "offline",
         scope: ["https://www.googleapis.com/auth/gmail.send"],
       });
