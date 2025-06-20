@@ -2,14 +2,8 @@ import * as functions from 'firebase-functions/v2';
 import { OAuth2Client } from 'google-auth-library';
 import cors from 'cors';
 
-// const oauth2Client = new OAuth2Client(
-//   functions.config().gmail.client_id,
-//   functions.config().gmail.client_secret,
-//   functions.config().gmail.redirect_uri
-// );
 
 const corsHandler = cors({ origin: true });
-
 
 // Auth URL Generator Function
 export const authGmail = functions.https.onRequest((req, res) => {
