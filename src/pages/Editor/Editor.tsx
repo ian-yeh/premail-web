@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEmails } from '../../contexts/EmailContext';
 import { Email } from '../../services/firebase/emailService';
-import { getFunctions, httpsCallable } from 'firebase/functions';
 
 import DatePicker from '../Editor/DatePicker.tsx';
 import { dateToTimestamp } from './editorUtils.ts';
@@ -17,6 +16,7 @@ const Editor = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
   const [scheduling, setScheduling] = useState(false);
   const [sending, setSending] = useState(false);
   const { currentUser } = useAuth();
@@ -125,42 +125,91 @@ const Editor = () => {
   };
 
   const handleSend = async () => {
+    console.log("SENDING NOW");
     setSending(true);
-    setError(null);
 
+    if (!currentUser) return;
+    
     try {
-      if (!currentUser) {
-        throw new Error("You must be logged in to send emails");
-      }
+      //sending request
+      const response = await fetch('http://127.0.0.1:5001/premail-app/us-central1/sendEmail', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: currentUser.uid,
+          emailData: {
+            to: 'kathrynnc7@gmail.com',
+            subject: 'Hello Ian!',
+            htmlBody: `
+            <!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #ff69b4, #ffb6c1);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(255, 105, 180, 0.3);
+            max-width: 400px;
+        }
+        h1 {
+            color: #d63384;
+            font-size: 2.5em;
+            margin: 0 0 20px 0;
+        }
+        .heart {
+            color: #ff1493;
+            font-size: 1.5em;
+            animation: pulse 1.5s ease-in-out infinite;
+            margin: 0 5px;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        p {
+            color: #c2185b;
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <span class="heart">💖</span>
+        <h1>Hello Kathryn!</h1>
+        <span class="heart">💕</span>
+        <p>HARRROOOO!</p>
+        <span class="heart">💗</span>
+        <span class="heart">💖</span>
+        <span class="heart">💕</span>
+    </div>
+</body>
+</html>
+            `,
+          }
+        })
+      });
 
-      // 3. Validate and prepare payload
-      validateEmail();
-      const payload = {
-        to: "ianyeh7@gmail.com",
-        subject: "hi",
-        body: "hi",
-      };
+      const result = await response.json();
+      console.log(result);
 
-      // 4. Call cloud function
-      const functions = getFunctions();
-      const sendNow = httpsCallable(functions, 'sendNow');
-      const result = await sendNow(payload);
-
-      // 5. Update UI
-      console.log('Email sent:', result.data);
-      navigate('/');
-
-    } catch (err: any) {
-      console.error('Send error:', err);
-      setError(err.message || 'Failed to send email');
-
-      // Specific error handling can remain as before
-      if (err.code === 'functions/invalid-argument') {
-        setError(err.message);
-      }
-      // ... other error cases
-    } finally {
       setSending(false);
+    } catch (error) {
+      console.log(error);
     }
   };
 
