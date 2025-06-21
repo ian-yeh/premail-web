@@ -1,54 +1,41 @@
-# React + TypeScript + Vite
+# 📧 Premail
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Schedule your emails with precision, send them with perfect timing.
 
-Currently, two official plugins are available:
+**Premail** is a modern email scheduling application that empowers users to compose emails now and deliver them exactly when they matter most. Never miss an important follow-up, birthday wish, or deadline reminder again.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## Expanding the ESLint configuration
+- **Smart Scheduling**: Set precise delivery times for your emails
+- **Gmail Integration**: Seamlessly connects with your Gmail account
+- **Intuitive Interface**: Clean, modern design for effortless email management
+- **Real-time Sync**: Your scheduled emails sync across all devices
+- **Reliable Delivery**: Built on robust infrastructure to ensure your emails are sent on time
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Built With
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+This project harnesses the power of modern web technologies:
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**Frontend Foundation**
+- ⚡ **Vite** - Lightning-fast build tool and development server
+- ⚛️ **React** - Component-based UI library for dynamic interfaces
+- 🔷 **TypeScript** - Type-safe JavaScript for robust development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+**Styling & Design**
+- 🎨 **Tailwind CSS** - Utility-first CSS framework for rapid styling
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+**Backend & Services**
+- 🔥 **Firebase** - Backend-as-a-Service for authentication and data storage
+- 📮 **Gmail API** - Direct integration with Google's email infrastructure
+
+## 🛠️ Getting Started
+
+1. Clone the repository
+2. Install dependencies with `npm install`
+3. Configure your Firebase and Gmail API credentials
+4. Run `npm run dev` to start the development server
+5. Open your browser and start scheduling emails!
+
+## 📝 Author
+
+Created by **[Ian Yeh]**

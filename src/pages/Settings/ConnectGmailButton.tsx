@@ -1,7 +1,11 @@
 import { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import { User } from "firebase/auth";
+import { db } from "../../services/firebase/firebaseConfig";
 
 export const ConnectGmailButton = () => {
-  const [status, setStatus] = useState("idle");
+  const [status, setStatus] = useState("success");
+  const { currentUser } = useAuth();
 
   const handleConnect = async () => {
     try {
@@ -10,6 +14,7 @@ export const ConnectGmailButton = () => {
       const { authUrl } = await authResponse.json();
 
       console.log(authUrl)
+
 
       const timestamp = Date.now();
 
@@ -30,8 +35,10 @@ export const ConnectGmailButton = () => {
 
           if (event.data.code) {
             console.log("CODE", event.data.code)
+
             // 4. Process the code
-            exchangeCodeForToken(event.data.code);
+            if (!currentUser) return;
+            exchangeCodeForToken(event.data.code, currentUser);
             window.removeEventListener('message', messageHandler);
 
             popup = null;
@@ -46,13 +53,27 @@ export const ConnectGmailButton = () => {
     }
   };
 
-  const exchangeCodeForToken = async (code: string) => {
+  //`https://localhost:5001/premail-app/us-central1/oauthCallback?code=${code}`
+  const exchangeCodeForToken = async (code: string, currentUser: User) => {
+
     try {
+
       const tokenResponse = await fetch(
-        `https://localhost:5001/premail-app/us-central1/oauthCallback?code=${code}`
+        `http://127.0.0.1:5001/premail-app/us-central1/oauthCallback?code=${code}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            userId: currentUser.uid ,
+            db: db
+          })
+        }
       );
-      const { accessToken, refreshToken } = await tokenResponse.json();
-      console.log("Success! Tokens:", accessToken, refreshToken);
+      const { accessToken, refreshToken, userId } = await tokenResponse.json();
+      console.log("ACCESS TOKEN:", accessToken);
+      console.log("REFRESH TOKEN:", refreshToken);
+      console.log("USERID:", userId)
+      setStatus('success');
     } catch (error) {
       console.error("Token exchange failed:", error);
     }
@@ -62,7 +83,7 @@ export const ConnectGmailButton = () => {
     <div className="flex flex-col items-center space-y-2">
       <button
         onClick={handleConnect}
-        disabled={status === 'loading'}
+        disabled={status === 'loading' || status === 'success'}
         className={`px-4 py-2 rounded-md text-white font-medium flex items-center space-x-2
           ${status === 'loading' ? 'bg-blue-400 cursor-not-allowed' : 
             status === 'error' ? 'bg-red-500 hover:bg-red-600' : 
