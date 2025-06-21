@@ -2,6 +2,12 @@ import * as functions from 'firebase-functions/v2';
 import { OAuth2Client } from 'google-auth-library';
 import cors from 'cors';
 
+const authClient = new OAuth2Client(
+  "716385265565-322eso5asg468bu6v590khqkfoomf927.apps.googleusercontent.com",
+  "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",
+  "https://localhost:5172/popup.html",
+);
+
 const corsHandler = cors({ origin: true });
 
 // Auth URL Generator Function
