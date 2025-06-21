@@ -46,10 +46,11 @@ export const ConnectGmailButton = () => {
     }
   };
 
+  //`https://localhost:5001/premail-app/us-central1/oauthCallback?code=${code}`
   const exchangeCodeForToken = async (code: string) => {
     try {
       const tokenResponse = await fetch(
-        `https://localhost:5001/premail-app/us-central1/oauthCallback?code=${code}`
+        `http://127.0.0.1:5001/premail-app/us-central1/oauthCallback?code=${code}`
       );
       const { accessToken, refreshToken } = await tokenResponse.json();
       console.log("Success! Tokens:", accessToken, refreshToken);

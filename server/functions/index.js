@@ -4,6 +4,12 @@ import cors from 'cors';
 
 const corsHandler = cors({ origin: true });
 
+const authClient = new OAuth2Client(
+  "716385265566-322eso5asg468bu6v590khqkfoomf927.apps.googleusercontent.com",
+  "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",
+  "https://localhost:5173/popup.html"
+)
+
 // Auth URL Generator Function
 export const authGmail = functions.https.onRequest((req, res) => {
   // Apply CORS to all requests (including OPTIONS preflight)
@@ -11,7 +17,11 @@ export const authGmail = functions.https.onRequest((req, res) => {
     try {
       const authUrl = authClient.generateAuthUrl({
         access_type: "offline",
-        scope: ["https://www.googleapis.com/auth/gmail.send"],
+        prompt: 'consent',
+        scope: [
+          "https://www.googleapis.com/auth/gmail.send",
+          "https://www.googleapis.com/auth/gmail.readonly"
+        ],
       });
 
       // Return JSON (better for frontend)
@@ -27,15 +37,19 @@ export const oauthCallback = functions.https.onRequest(async (req, res) => {
 
   try {
     // Exchange code for tokens
-    const { tokens } = await oauth2Client.getToken(code);
-    oauth2Client.setCredentials(tokens);
+    const { tokens } = await authClient.getToken(code);
+    authClient.setCredentials(tokens);
+
+    console.log(tokens.access_token, tokens.refresh_token)
 
     // Return tokens to frontend (or store them securely)
     res.json({
-      access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token, // Only on first auth
+      accessToken: tokens.access_token,
+      refreshToken: tokens.refresh_token,
     });
+
   } catch (error) {
     res.status(500).json({ error: "Failed to get token" });
   }
 });
+
