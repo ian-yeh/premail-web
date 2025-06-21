@@ -46,7 +46,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         displayName: user.displayName,
         photoURL: user.photoURL,
         createdAt: new Date(),
-        gmailRefreshToken: "",
         updatedAt: new Date()
       }, { merge: true }); // merge: true prevents overwriting existing data
     } catch (err) {
