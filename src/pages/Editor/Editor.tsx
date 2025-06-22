@@ -140,66 +140,9 @@ const Editor = () => {
         body: JSON.stringify({
           userId: currentUser.uid,
           emailData: {
-            to: 'kathrynnc7@gmail.com',
-            subject: 'Hello Ian!',
-            htmlBody: `
-            <!DOCTYPE html>
-<html>
-<head>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(45deg, #ff69b4, #ffb6c1);
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(255, 105, 180, 0.3);
-            max-width: 400px;
-        }
-        h1 {
-            color: #d63384;
-            font-size: 2.5em;
-            margin: 0 0 20px 0;
-        }
-        .heart {
-            color: #ff1493;
-            font-size: 1.5em;
-            animation: pulse 1.5s ease-in-out infinite;
-            margin: 0 5px;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-        p {
-            color: #c2185b;
-            font-size: 1.2em;
-            margin: 20px 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <span class="heart">💖</span>
-        <h1>Hello Kathryn!</h1>
-        <span class="heart">💕</span>
-        <p>HARRROOOO!</p>
-        <span class="heart">💗</span>
-        <span class="heart">💖</span>
-        <span class="heart">💕</span>
-    </div>
-</body>
-</html>
-            `,
+            to: email.to,
+            subject: email.subject,
+            textBody: email.body,
           }
         })
       });

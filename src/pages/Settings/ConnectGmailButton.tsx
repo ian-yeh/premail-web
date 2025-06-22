@@ -4,7 +4,7 @@ import { User } from "firebase/auth";
 import { db } from "../../services/firebase/firebaseConfig";
 
 export const ConnectGmailButton = () => {
-  const [status, setStatus] = useState("success");
+  const [status, setStatus] = useState("idle");
   const { currentUser } = useAuth();
 
   const handleConnect = async () => {

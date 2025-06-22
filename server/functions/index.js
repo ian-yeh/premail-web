@@ -3,7 +3,7 @@ import { OAuth2Client } from 'google-auth-library';
 import cors from 'cors';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { onRequest } from 'firebase-functions/v2/https';
+import { defineString } from 'firebase-functions/params';
 import { google } from 'googleapis';
 
 
@@ -11,22 +11,19 @@ import { google } from 'googleapis';
 initializeApp();
 const db = getFirestore();
 
-const authClient = new OAuth2Client(
-  "716385265565-322eso5asg468bu6v590khqkfoomf927.apps.googleusercontent.com",
-  "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",
-  "https://localhost:5172/popup.html",
-);
+const clientId = defineString('GMAIL_CLIENT_ID');
+const clientSecret = defineString('GMAIL_CLIENT_SECRET');
 
 const corsHandler = cors({ origin: true });
 
-const authClient = new OAuth2Client(
-  "716385265566-322eso5asg468bu6v590khqkfoomf927.apps.googleusercontent.com",
-  "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",
-  "https://localhost:5173/popup.html"
-)
-
 // Auth URL Generator Function
 export const authGmail = functions.https.onRequest((req, res) => {
+  // creating auth client
+  const authClient = new OAuth2Client(
+    clientId.value(),
+    clientSecret.value(),
+    "https://localhost:5173/popup.html",
+  );
   // Apply CORS to all requests (including OPTIONS preflight)
   corsHandler(req, res, async () => {
     try {
@@ -51,6 +48,12 @@ export const oauthCallback = functions.https.onRequest(async (req, res) => {
   const { code } = req.query; // From ?code=...
 
   const { userId } = req.body;
+
+  const authClient = new OAuth2Client(
+    clientId.value(),
+    clientSecret.value(),
+    "https://localhost:5173/popup.html",
+  );
 
   try {
     // Exchange code for tokens
@@ -119,8 +122,8 @@ export const sendEmail = functions.https.onRequest((req, res) => {
 
       // Create OAuth2 client for this request
       const oauth2Client = new OAuth2Client(
-        "716385265566-322eso5asg468bu6v590khqkfoomf927.apps.googleusercontent.com",
-        "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",
+        clientId.value(),
+        clientSecret.value(),
         "https://localhost:5173/popup.html"
       );
 
@@ -202,3 +205,4 @@ export const sendEmail = functions.https.onRequest((req, res) => {
     }
   });
 });
+

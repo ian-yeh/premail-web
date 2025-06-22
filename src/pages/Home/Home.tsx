@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext.tsx';
 import EmailList from './EmailList.tsx';
+import { startTestLoop } from '../../services/firebase/processScheduledEmails.ts';
 
 const Home = () => {
   const [time, setTime] = useState(new Date());
@@ -14,6 +15,10 @@ const Home = () => {
 
     return () => clearInterval(interval); // Cleanup interval on unmount
   }, []);
+
+  const handleTest = () =>  {
+    startTestLoop();
+  }
 
   return (
     <div className="font-display p-10">
@@ -55,6 +60,11 @@ const Home = () => {
 
       <div className="mt-16">
         <EmailList />
+      
+      </div>
+
+      <div>
+        <button onClick={handleTest}>TestMe</button>
       </div>
 
     </div>
