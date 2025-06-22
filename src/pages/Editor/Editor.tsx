@@ -7,12 +7,12 @@ import { Email } from '../../services/firebase/emailService';
 import DatePicker from '../Editor/DatePicker.tsx';
 import { dateToTimestamp } from './editorUtils.ts';
 import { useAuth } from '../../contexts/AuthContext.tsx';
+import { markEmailAsSent } from '../../services/firebase/processScheduledEmails.ts';
 
 const Editor = () => {
   const { emailId } = useParams();
   const navigate = useNavigate();
   const { createNewEmail, getEmail, updateExistingEmail } = useEmails();
-  //const { currentUser } = useAuth(); // Get current user
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -95,9 +95,13 @@ const Editor = () => {
     try {
       validateEmail();
 
+      const newStatus: "draft" | "sent" | "scheduled" | "failed" | undefined = email.scheduledDate ? 'scheduled' : 'draft';
+
+      console.log(newStatus)
+
       const draftEmail = {
         ...email,
-        status: 'draft' as const
+        status: newStatus 
       };
 
       if (emailId === 'new') {
@@ -105,6 +109,7 @@ const Editor = () => {
         navigate(`/editor/${newEmail.id}`);
       } else {
         await updateExistingEmail(emailId!, draftEmail);
+        navigate('/home');
       }
 
     } catch (err: any) {
@@ -130,6 +135,7 @@ const Editor = () => {
         navigate(`/editor/${newEmail.id}`);
       } else {
         await updateExistingEmail(emailId!, draftEmail);
+        navigate('/home');
       }
       
     } catch (error: any) {
@@ -171,6 +177,9 @@ const Editor = () => {
       console.log(result);
 
       setSending(false);
+      navigate('/home');
+
+      if (email.id) markEmailAsSent(email.id);
     } catch (error) {
       console.log(error);
     }

@@ -1,4 +1,3 @@
-// Testing module for processScheduledEmails function
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 import { updateDoc, doc } from 'firebase/firestore';
@@ -131,4 +130,4 @@ const startLoop = (userId: string) => {
 };
 
 
-export { startLoop };
+export { startLoop, markEmailAsSent };

@@ -1,4 +1,3 @@
-// src/services/firebase/emailService.ts
 import { 
   collection, 
   addDoc, 
@@ -33,9 +32,12 @@ export interface Email {
 // CREATE: Add a new email
 export const createEmail = async (emailData: Omit<Email, 'id' | 'createdAt' | 'updatedAt'>) => {
   try {
+    const scheduledDate = emailData.scheduledDate ? emailData.scheduledDate : null;
+
     const emailsRef = collection(db, 'emails');
     const docRef = await addDoc(emailsRef, {
       ...emailData,
+      scheduledDate: scheduledDate,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
@@ -120,141 +122,3 @@ export const deleteEmail = async (emailId: string) => {
     throw error;
   }
 };
-
-// Process pending scheduled emails
-
-// Process pending scheduled emails
-//const processScheduledEmails = async () => {
-//  try {
-//    const now = Timestamp.now();
-//    console.log('Processing scheduled emails at:', now.toDate());
-//    
-//    // Query for emails that are scheduled and due
-//    const q = query(
-//      collection(db, 'emails'),
-//      where('status', '==', 'scheduled'),
-//      where('scheduledDate', '<=', now)
-//    );
-//    
-//    const snapshot = await getDocs(q);
-//    console.log(`Found ${snapshot.docs.length} emails to process`);
-//    
-//    if (snapshot.empty) {
-//      console.log('No scheduled emails to process');
-//      return [];
-//    }
-//    
-//    const results = [];
-//    
-//    // Process each email
-//    for (const doc of snapshot.docs) {
-//      try {
-//        const emailData = doc.data();
-//        const emailId = doc.id;
-//        
-//        console.log(`Processing email ${emailId}:`, emailData);
-//        
-//        // Update status to 'sending' to prevent duplicate processing
-//        await updateDoc(doc.ref, {
-//          status: 'sending',
-//          processedAt: Timestamp.now()
-//        });
-//        
-//        // Send the email (you'll need to implement sendEmail function)
-//        const sendResult = await sendEmail(emailData);
-//        
-//        // Update status based on send result
-//        if (sendResult.success) {
-//          await updateDoc(doc.ref, {
-//            status: 'sent',
-//            sentAt: Timestamp.now(),
-//            messageId: sendResult.messageId || null
-//          });
-//          console.log(`Email ${emailId} sent successfully`);
-//        } else {
-//          await updateDoc(doc.ref, {
-//            status: 'failed',
-//            failedAt: Timestamp.now(),
-//            error: sendResult.error || 'Unknown error'
-//          });
-//          console.error(`Email ${emailId} failed to send:`, sendResult.error);
-//        }
-//        
-//        results.push({
-//          id: emailId,
-//          status: sendResult.success ? 'sent' : 'failed',
-//          ...emailData
-//        });
-//        
-//      } catch (emailError) {
-//        console.error(`Error processing email ${doc.id}:`, emailError);
-//        
-//        // Mark as failed
-//        try {
-//          await updateDoc(doc.ref, {
-//            status: 'failed',
-//            failedAt: Timestamp.now(),
-//            error: emailError.message
-//          });
-//        } catch (updateError) {
-//          console.error(`Error updating failed email ${doc.id}:`, updateError);
-//        }
-//        
-//        results.push({
-//          id: doc.id,
-//          status: 'failed',
-//          error: emailError.message,
-//          ...doc.data()
-//        });
-//      }
-//    }
-//    
-//    console.log(`Processed ${results.length} emails`);
-//    return results;
-//    
-//  } catch (error) {
-//    console.error('Error processing scheduled emails:', error);
-//    throw error;
-//  }
-//};
-//
-//// Example sendEmail function (you'll need to implement this with Gmail API)
-//const sendEmail = async (emailData) => {
-//  try {
-//    // This is where you'd integrate with Gmail API
-//    // Example structure:
-//    
-//    // 1. Get user's OAuth tokens from Firestore
-//    // 2. Create Gmail API client with tokens
-//    // 3. Send email using gmail.users.messages.send()
-//    // 4. Return success/failure result
-//    
-//    console.log('Sending email:', emailData);
-//    
-//    // Placeholder - replace with actual Gmail API implementation
-//    return {
-//      success: true,
-//      messageId: 'fake-message-id-' + Date.now()
-//    };
-//    
-//  } catch (error) {
-//    return {
-//      success: false,
-//      error: error.message
-//    };
-//  }
-//};
-//
-//
-//const startEmailProcessor = () => {
-//  setInterval(async () => {
-//    try {
-//      await processScheduledEmails();
-//    } catch (error) {
-//      console.error('Error in email processor interval:', error);
-//    }
-//  }, 60000); // Run every minute
-//};
-//
-//startEmailProcessor();
-//
