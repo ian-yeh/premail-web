@@ -258,16 +258,3 @@ export const deleteEmail = async (emailId: string) => {
 //
 //startEmailProcessor();
 //
-//// Mark email as sent
-//export const markEmailAsSent = async (emailId: string) => {
-//  try {
-//    await updateDoc(doc(db, 'emails', emailId), {
-//      status: 'sent',
-//      updatedAt: serverTimestamp()
-//    });
-//    return true;
-//  } catch (error) {
-//    console.error('Error marking email as sent:', error);
-//    throw error;
-//  }
-//};

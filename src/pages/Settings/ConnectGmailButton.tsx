@@ -9,23 +9,17 @@ export const ConnectGmailButton = () => {
 
   const handleConnect = async () => {
     try {
-      // 1. Get auth URL from Firebase Function
       const authResponse = await fetch('http://localhost:5001/premail-app/us-central1/authGmail');
       const { authUrl } = await authResponse.json();
 
-      console.log(authUrl)
-
-
       const timestamp = Date.now();
 
-      // 2. Open auth in popup
       let popup = window.open(
         authUrl,
         `gmailAuth_${timestamp}`,
         "width=600,height=600"
       );
 
-      // 3. Listen for message from popup
       const messageHandler = (event: MessageEvent) => {
         // SECURITY CHECK - verify origin
         //if (event.origin !== "https://accounts.google.com") return;
@@ -36,7 +30,6 @@ export const ConnectGmailButton = () => {
           if (event.data.code) {
             console.log("CODE", event.data.code)
 
-            // 4. Process the code
             if (!currentUser) return;
             exchangeCodeForToken(event.data.code, currentUser);
             window.removeEventListener('message', messageHandler);

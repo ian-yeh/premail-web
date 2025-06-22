@@ -107,7 +107,6 @@ const Editor = () => {
         await updateExistingEmail(emailId!, draftEmail);
       }
 
-      // Don't navigate away, stay in editor for further editing
     } catch (err: any) {
       setError(err.message || 'Failed to save email');
     } finally {
@@ -118,6 +117,27 @@ const Editor = () => {
   // Handle scheduling email for later
   const handleSchedule = async () => {
     console.log("handling schedule");
+    setScheduling(true);
+
+    try {
+      const draftEmail = {
+        ...email,
+        status: 'scheduled' as const
+      };
+
+      if (emailId === 'new') {
+        const newEmail = await createNewEmail(draftEmail as Omit<Email, 'id' | 'userId' | 'createdAt' | 'updatedAt'>);
+        navigate(`/editor/${newEmail.id}`);
+      } else {
+        await updateExistingEmail(emailId!, draftEmail);
+      }
+      
+    } catch (error: any) {
+      setError(error.message || 'Failed to schedule email');
+    } finally {
+      setScheduling(false);
+    }
+
   };
 
   const handleBack = () => {

@@ -1,28 +1,23 @@
 // Testing module for processScheduledEmails function
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from './firebaseConfig';
+import { updateDoc, doc } from 'firebase/firestore';
 
 // Process pending scheduled emails - Testing Version
 const processScheduledEmails = async () => {
   try {
     const now = Timestamp.now();
-    //console.log('🕐 Current time:', now.toDate());
-    //console.log('🕐 Current timestamp:', now);
     
     // Query for emails that are scheduled and due
     const q = query(
       collection(db, 'emails'),
       where('status', '==', 'scheduled'),
+      where('scheduledDate', '<=', now)
     );
 
-    
-      //where('scheduledDate', '<=', now)
-    
     const snapshot = await getDocs(q);
     
-    if (snapshot.empty) {
-      return [];
-    }
+    if (snapshot.empty) return [];
     
     const emailsToProcess: any[] = [];
     
@@ -56,9 +51,8 @@ const processScheduledEmails = async () => {
   }
 };
 
-// Test runner function
-const runTest = async () => {
-  console.log('🚀 Starting scheduled email test...\n');
+const fetchScheduledEmails = async (userId: string) => {
+  console.log('🚀 Starting scheduled email sending...\n');
   
   try {
     const results = await processScheduledEmails();
@@ -67,6 +61,7 @@ const runTest = async () => {
     if (results.length > 0) {
       results.forEach((email, index) => {
         console.log(`${index + 1}. ${email.subject} -> ${email.to}`);
+        sendScheduledEmail(userId, email);
       });
     }
     
@@ -75,17 +70,65 @@ const runTest = async () => {
   }
 };
 
-// For continuous testing - run every 30 seconds
-const startLoop = () => {
-  console.log('🔄 Starting test loop (every 30 seconds)...\n');
+const sendScheduledEmail = async (userId: string, email: any) => {
+  console.log(email);
+
+  try {
+    //sending request
+    const response = await fetch('http://127.0.0.1:5001/premail-app/us-central1/sendEmail', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId: userId,
+        emailData: {
+          to: email.to,
+          subject: email.subject,
+          textBody: email.body,
+        }
+      })
+    });
+
+    const result = await response.json();
+    console.log(result);
+
+    markEmailAsSent(email.id);
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+// Mark email as sent
+const markEmailAsSent = async (emailId: string) => {
+  try {
+    await updateDoc(doc(db, 'emails', emailId), {
+      status: 'sent',
+    });
+    return true;
+  } catch (error) {
+    console.error('Error marking email as sent:', error);
+    throw error;
+  }
+};
+
+let processStart: boolean = false;
+
+const startLoop = (userId: string) => {
   
   const loop = async () => {
     console.log('\n' + '='.repeat(50));
-    await runTest();
-    setTimeout(loop, 30000);
+    await fetchScheduledEmails(userId);
+
+    setTimeout(loop, 60000)
   };
   
-  loop();
+  if (!processStart) loop();
+
+  console.log(processStart);
+
+  processStart = true;
 };
+
 
 export { startLoop };

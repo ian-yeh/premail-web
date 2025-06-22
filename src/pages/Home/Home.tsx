@@ -17,8 +17,11 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    startLoop();
+    if (currentUser) {
+      startLoop(currentUser.uid)
+    }
   }, []);
+
 
   return (
     <div className="font-display p-10">
