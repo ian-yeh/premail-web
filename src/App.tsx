@@ -2,9 +2,10 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Home from './pages/Home/Home.tsx';
 import Editor from './pages/Editor/Editor.tsx';
 import Login from './pages/Login/Login.tsx';
+import { Landing } from './pages/Landing/Landing.tsx';
+import Header from './pages/Landing/Header.tsx'
 import Sidebar from './components/SideBar.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
-
 import { AuthProvider } from './contexts/AuthContext.tsx';
 import { EmailProvider } from './contexts/EmailContext.tsx';
 import { Settings } from './pages/Settings/Settings.tsx';
@@ -16,33 +17,46 @@ const App = () => {
   return (
     <AuthProvider>
       <EmailProvider>
-        <div className="flex h-screen">
-          {!isLoginPage && 
-          <div className="sticky top-0 left-0 h-screen">
-            <Sidebar />
+        {isLoginPage ? (
+          // Login page layout - vertical stack
+          <div className="min-h-screen">
+            <div className='sticky top-0 w-full'>
+              <Header />
+            </div>
+            <div className="p-6 scrollbar-hide">
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/Login" element={<Login />} />
+              </Routes>
+            </div>
           </div>
-          }
-          <div className={`${isLoginPage ? 'w-full' : 'flex-1'} p-6 overflow-auto`}>
-            <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/Home" element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              }/>
-              <Route path="/editor/:emailId" element={
-                <ProtectedRoute>
-                  <Editor />
-                </ProtectedRoute>
-              }/>
-              <Route path="/settings" element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }/>
-            </Routes>
+        ) : (
+          // App layout - horizontal flex
+          <div className="flex h-screen">
+            <div className="sticky top-0 left-0 h-screen">
+              <Sidebar />
+            </div>
+            <div className="flex-1 p-6 overflow-auto">
+              <Routes>
+                <Route path="/Home" element={
+                  <ProtectedRoute>
+                    <Home />
+                  </ProtectedRoute>
+                } />
+                <Route path="/editor/:emailId" element={
+                  <ProtectedRoute>
+                    <Editor />
+                  </ProtectedRoute>
+                } />
+                <Route path="/settings" element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                } />
+              </Routes>
+            </div>
           </div>
-        </div>
+        )}
       </EmailProvider>
     </AuthProvider>
   );
