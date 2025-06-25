@@ -10,6 +10,8 @@ import { AuthProvider } from './contexts/AuthContext.tsx';
 import { EmailProvider } from './contexts/EmailContext.tsx';
 import { Settings } from './pages/Settings/Settings.tsx';
 
+import { AnimatePresence } from 'framer-motion';
+
 const App = () => {
   const location = useLocation();
   const isLoginPage = location.pathname === '/' || location.pathname === '/login';
@@ -24,10 +26,12 @@ const App = () => {
               <Header />
             </div>
             <div className="p-6 scrollbar-hide">
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/login" element={<Login />} />
-              </Routes>
+              <AnimatePresence mode='wait'>
+                <Routes location={location} key={location.pathname}>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/login" element={<Login />} />
+                </Routes>
+              </AnimatePresence>
             </div>
           </div>
         ) : (
