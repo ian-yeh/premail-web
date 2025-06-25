@@ -2,7 +2,7 @@ export default function Header() {
   return (
     <div className="">
       <header 
-        className=" h-[87px] w-full flex items-center justify-between px-6 shadow-md z-50"
+        className=" h-[88px] w-full flex items-center justify-between px-6 shadow-md z-50"
         style={{ backgroundColor: '#FAFEFF' }}
       >
         {/* Logo Section */}

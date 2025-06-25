@@ -12,7 +12,7 @@ import { Settings } from './pages/Settings/Settings.tsx';
 
 const App = () => {
   const location = useLocation();
-  const isLoginPage = location.pathname === '/';
+  const isLoginPage = location.pathname === '/' || location.pathname === '/login';
 
   return (
     <AuthProvider>
@@ -26,7 +26,7 @@ const App = () => {
             <div className="p-6 scrollbar-hide">
               <Routes>
                 <Route path="/" element={<Landing />} />
-                <Route path="/Login" element={<Login />} />
+                <Route path="/login" element={<Login />} />
               </Routes>
             </div>
           </div>
@@ -38,7 +38,7 @@ const App = () => {
             </div>
             <div className="flex-1 p-6 overflow-auto">
               <Routes>
-                <Route path="/Home" element={
+                <Route path="/home" element={
                   <ProtectedRoute>
                     <Home />
                   </ProtectedRoute>
