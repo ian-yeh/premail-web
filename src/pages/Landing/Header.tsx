@@ -34,13 +34,13 @@ export default function Header() {
         <nav className="hidden sm:flex items-center gap-9">
           <button
             onClick={() => handleLink('github')}
-            className="font-inter text-blue-600 hover:text-blue-400 font-medium text-base font-semibold transition-colors duration-200"
+            className="font-inter text-blue-600 hover:text-blue-400 font-medium text-base font-semibold transition-colors duration-200 tracking-wide"
           >
             Github
           </button>
           <button
             onClick={() => handleLink('techstack')}
-            className="font-inter text-blue-600 hover:text-blue-400 font-medium text-base font-semibold transition-colors duration-200"
+            className="font-inter text-blue-600 hover:text-blue-400 font-medium text-base font-semibold transition-colors duration-200 tracking-wide"
           >
             Tech Stack
           </button>
