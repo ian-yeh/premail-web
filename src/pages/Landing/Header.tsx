@@ -1,11 +1,19 @@
+import { useNavigate } from "react-router-dom";
+
 export default function Header() {
+  const navigation = useNavigate();
+
   const handleSignin = () => {
-    console.log("signed  in")
+    navigation('/login');
   }
 
   const handleLink = (link: string) => {
     console.log(link);
-    if (link === 'github') window.open('https://www.github.com', '_blank')
+    if (link === 'github') window.open('https://github.com/ian-yeh/premail-web', '_blank')
+  }
+
+  const handleHome = () =>  {
+    navigation('/');
   }
 
   return (
@@ -17,7 +25,7 @@ export default function Header() {
         className="h-[80px] w-5/6 flex items-center justify-between px-6 z-50"
       >
         {/* Logo Section */}
-        <button className="bg-transparent border-none p-0 m-0 cursor-pointer"  onClick={() => {window.location.href = 'https://www.youtube.com'}}>
+        <button className="bg-transparent border-none p-0 m-0 cursor-pointer"  onClick={handleHome}>
           <div className="flex items-center gap-1 w-60">
             <img
               src="/premail.png"
