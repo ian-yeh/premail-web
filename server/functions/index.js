@@ -15,7 +15,12 @@ const clientId = defineString('GMAIL_CLIENT_ID');
 const clientSecret = defineString('GMAIL_CLIENT_SECRET');
 const redirectURI = defineString('GMAIL_REDIRECT_URI');
 
-const corsHandler = cors({ origin: true });
+const corsHandler = cors({
+  origin: ['https://localhost:5173'],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+});
 
 // Auth URL Generator Function
 export const authGmail = functions.https.onRequest((req, res) => {
@@ -46,46 +51,53 @@ export const authGmail = functions.https.onRequest((req, res) => {
 });
 
 export const oauthCallback = functions.https.onRequest(async (req, res) => {
-  const { code } = req.query; // From ?code=...
+  corsHandler(req, res, async () => {
+    const { code } = req.query; // From ?code=...
 
-  const { userId } = req.body;
+    const { userId } = req.body;
 
-  const authClient = new OAuth2Client(
-    clientId.value(),
-    clientSecret.value(),
-    redirectURI.value(),
-  );
+    const authClient = new OAuth2Client(
+      clientId.value(),
+      clientSecret.value(),
+      redirectURI.value(),
+    );
 
-  try {
-    // Exchange code for tokens
-    const { tokens } = await authClient.getToken(code);
-    authClient.setCredentials(tokens);
+    try {
+      // Exchange code for tokens
+      const { tokens } = await authClient.getToken(code);
+      authClient.setCredentials(tokens);
 
-    console.log(tokens.access_token, tokens.refresh_token)
+      console.log(tokens.access_token, tokens.refresh_token)
 
-    await db.collection('users').doc(userId).update({
-      gmailAccessToken: tokens.access_token,
-      gmailRefreshToken: tokens.refresh_token,
-      gmailTokenExpiresAt: tokens.expiry_date || (Date.now() + (tokens.expires_in * 1000)),
-      gmailConnectedAt: Date.now(),
-      gmailConnected: true
-    });
+      await db.collection('users').doc(userId).update({
+        gmailAccessToken: tokens.access_token,
+        gmailRefreshToken: tokens.refresh_token,
+        gmailTokenExpiresAt: tokens.expiry_date || (Date.now() + (tokens.expires_in * 1000)),
+        gmailConnectedAt: Date.now(),
+        gmailConnected: true
+      });
 
-    // Return tokens to frontend (or store them securely)
-    res.json({
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
-      userId,
-    });
+      // Return tokens to frontend (or store them securely)
+      res.json({
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        userId,
+      });
 
-  } catch (error) {
-    res.status(500).json({ error: "Failed to get token" });
-  }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get token" });
+    }
+  });
 });
 
 // Email sending function
 export const sendEmail = functions.https.onRequest((req, res) => {
   corsHandler(req, res, async () => {
+    if (req.method === 'OPTIONS') {
+      res.status(200).end();
+      return;
+    }
+
     if (req.method !== 'POST') {
       res.status(405).json({ error: 'Method not allowed' });
       return;
@@ -100,8 +112,8 @@ export const sendEmail = functions.https.onRequest((req, res) => {
     }
 
     if (!emailData || !emailData.to || !emailData.subject || (!emailData.htmlBody && !emailData.textBody)) {
-      res.status(400).json({ 
-        error: 'emailData with to, subject, and htmlBody or textBody is required' 
+      res.status(400).json({
+        error: 'emailData with to, subject, and htmlBody or textBody is required'
       });
       return;
     }
@@ -109,12 +121,12 @@ export const sendEmail = functions.https.onRequest((req, res) => {
     try {
       // Get user data with Gmail tokens
       const userDoc = await db.collection('users').doc(userId).get();
-      
+
       if (!userDoc.exists) {
         res.status(404).json({ error: 'User not found' });
         return;
       }
-      
+
       const userData = userDoc.data();
       if (!userData.gmailAccessToken || !userData.gmailRefreshToken) {
         res.status(400).json({ error: 'No Gmail tokens found for user' });
@@ -137,7 +149,7 @@ export const sendEmail = functions.https.onRequest((req, res) => {
       // Handle token refresh
       oauth2Client.on('tokens', async (newTokens) => {
         console.log('Token refreshed, updating Firestore...');
-        
+
         const updateData = {};
         if (newTokens.access_token) {
           updateData.gmailAccessToken = newTokens.access_token;
@@ -148,7 +160,7 @@ export const sendEmail = functions.https.onRequest((req, res) => {
         if (newTokens.expiry_date) {
           updateData.gmailTokenExpiresAt = newTokens.expiry_date;
         }
-        
+
         await db.collection('users').doc(userId).update(updateData);
       });
 
@@ -156,7 +168,7 @@ export const sendEmail = functions.https.onRequest((req, res) => {
 
       // Create email message
       const { to, subject, htmlBody, textBody } = emailData;
-      
+
       const emailLines = [
         `To: ${to}`,
         `Subject: ${subject}`,
@@ -167,7 +179,7 @@ export const sendEmail = functions.https.onRequest((req, res) => {
       ];
 
       const email = emailLines.join('\r\n');
-      
+
       // Encode email in base64url format
       const encodedEmail = Buffer.from(email)
         .toString('base64')
@@ -191,7 +203,7 @@ export const sendEmail = functions.https.onRequest((req, res) => {
 
     } catch (error) {
       console.error('Error sending email:', error);
-      
+
       if (error.code === 401) {
         res.status(401).json({
           success: false,

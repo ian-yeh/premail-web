@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Home from './pages/Home/Home.tsx';
 import Editor from './pages/Editor/Editor.tsx';
 import Login from './pages/Login/Login.tsx';

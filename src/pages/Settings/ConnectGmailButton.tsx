@@ -9,7 +9,7 @@ export const ConnectGmailButton = () => {
 
   const handleConnect = async () => {
     try {
-      const authResponse = await fetch('http://localhost:5001/premail-app/us-central1/authGmail');
+      const authResponse = await fetch('https://us-central1-premail-app.cloudfunctions.net/authGmail');
       const { authUrl } = await authResponse.json();
 
       const timestamp = Date.now();
@@ -35,6 +35,7 @@ export const ConnectGmailButton = () => {
             window.removeEventListener('message', messageHandler);
 
             popup = null;
+            console.log(popup);
           }
         }, 6000)
 

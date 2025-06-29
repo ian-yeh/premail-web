@@ -52,7 +52,7 @@ const EmailDisplay = ({ email, onDelete }: EmailProps) => {
   };
 
   const currentStatus = email.status || 'draft';
-  const statusConfig = statusColors[currentStatus] || statusColors.draft;
+  const statusConfig = statusColors.draft;
 
   return (
     <div 
