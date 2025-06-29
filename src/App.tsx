@@ -3,13 +3,17 @@ import Home from './pages/Home/Home.tsx';
 import Editor from './pages/Editor/Editor.tsx';
 import Login from './pages/Login/Login.tsx';
 import { Landing } from './pages/Landing/Landing.tsx';
+
 import Header from './pages/Landing/Header.tsx'
 import Footer from './pages/Landing/Footer.tsx' 
 import Sidebar from './components/SideBar.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
+
 import { AuthProvider } from './contexts/AuthContext.tsx';
 import { EmailProvider } from './contexts/EmailContext.tsx';
+
 import { Settings } from './pages/Settings/Settings.tsx';
+
 import { AnimatePresence } from 'framer-motion';
 
 const App = () => {

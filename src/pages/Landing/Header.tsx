@@ -18,14 +18,14 @@ export default function Header() {
 
   return (
     <div 
-      className="w-full flex items-center shadow-sm justify-center"
+      className="w-full flex items-center shadow-sm justify-center z-50"
       style={{ backgroundColor: '#FAFEFF' }}
     >
       <header
         className="h-[80px] w-5/6 flex items-center justify-between px-6 z-50"
       >
         {/* Logo Section */}
-        <button className="bg-transparent border-none p-0 m-0 cursor-pointer"  onClick={handleHome}>
+        <button className="bg-transparent border-none p-0 m-0 cursor-pointer" onClick={handleHome}>
           <div className="flex items-center gap-1 w-60">
             <img
               src="/premail.png"
