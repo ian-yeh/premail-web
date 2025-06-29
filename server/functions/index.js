@@ -13,6 +13,7 @@ const db = getFirestore();
 
 const clientId = defineString('GMAIL_CLIENT_ID');
 const clientSecret = defineString('GMAIL_CLIENT_SECRET');
+const redirectURI = defineString('GMAIL_REDIRECT_URI');
 
 const corsHandler = cors({ origin: true });
 
@@ -22,7 +23,7 @@ export const authGmail = functions.https.onRequest((req, res) => {
   const authClient = new OAuth2Client(
     clientId.value(),
     clientSecret.value(),
-    "https://localhost:5173/popup.html",
+    redirectURI.value()
   );
   // Apply CORS to all requests (including OPTIONS preflight)
   corsHandler(req, res, async () => {
