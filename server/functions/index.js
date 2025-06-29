@@ -53,7 +53,7 @@ export const oauthCallback = functions.https.onRequest(async (req, res) => {
   const authClient = new OAuth2Client(
     clientId.value(),
     clientSecret.value(),
-    "https://localhost:5173/popup.html",
+    redirectURI.value(),
   );
 
   try {

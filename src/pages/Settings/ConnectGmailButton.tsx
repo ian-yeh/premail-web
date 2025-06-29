@@ -46,13 +46,12 @@ export const ConnectGmailButton = () => {
     }
   };
 
-  //`https://localhost:5001/premail-app/us-central1/oauthCallback?code=${code}`
   const exchangeCodeForToken = async (code: string, currentUser: User) => {
 
     try {
 
       const tokenResponse = await fetch(
-        `http://127.0.0.1:5001/premail-app/us-central1/oauthCallback?code=${code}`,
+        `https://us-central1-premail-app.cloudfunctions.net/oauthCallback?code=${code}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

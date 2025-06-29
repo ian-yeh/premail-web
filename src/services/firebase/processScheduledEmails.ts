@@ -74,7 +74,7 @@ const sendScheduledEmail = async (userId: string, email: any) => {
 
   try {
     //sending request
-    const response = await fetch('http://127.0.0.1:5001/premail-app/us-central1/sendEmail', {
+    const response = await fetch('https://us-central1-premail-app.cloudfunctions.net/sendEmail', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
