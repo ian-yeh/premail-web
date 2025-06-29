@@ -16,7 +16,7 @@ const clientSecret = defineString('GMAIL_CLIENT_SECRET');
 const redirectURI = defineString('GMAIL_REDIRECT_URI');
 
 const corsHandler = cors({
-  origin: ['https://localhost:5173'],
+  origin: ['https://localhost:5173', 'https://premail-web.vercel.app'],
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
